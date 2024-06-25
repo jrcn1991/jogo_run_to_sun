@@ -1,0 +1,75 @@
+body {
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #2e2e2e;
+    font-family: 'Courier New', Courier, monospace;
+    color: #fff;
+}
+
+.game-container {
+    width: 300px;
+    height: 500px;
+    overflow: hidden;
+    border: 2px solid #ff00ff;
+    background: linear-gradient(#111, #333);
+    position: relative;
+    perspective: 800px;
+}
+
+.road {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    background: linear-gradient(to bottom, #333 0%, #000 100%);
+    overflow: hidden;
+    transform: rotateX(20deg);
+    transform-origin: bottom center;
+}
+
+.car {
+    width: 40px;
+    height: 70px;
+    background-color: #00ffff;
+    position: absolute;
+    bottom: 20px;
+    left: 130px; /* Inicialmente centralizado */
+    transition: left 0.1s;
+}
+
+.obstacle {
+    width: 40px;
+    height: 70px;
+    background-color: #ff00ff;
+    position: absolute;
+    top: 0;
+}
+
+.palm-tree {
+    width: 20px;
+    height: 60px;
+    background-color: #00ff00;
+    position: absolute;
+}
+
+.road::before {
+    content: '';
+    width: 2px;
+    height: 100%;
+    background-color: #ff00ff;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    animation: road-animation 1s linear infinite;
+}
+
+@keyframes road-animation {
+    0% {
+        top: -100%;
+    }
+    100% {
+        top: 100%;
+    }
+}
