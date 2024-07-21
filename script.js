@@ -313,7 +313,7 @@ var vehicle;
 var mtlLoader = new THREE.MTLLoader();
 
 // Carregar o material MTL
-mtlLoader.load('car.mtl', function (materials) {
+mtlLoader.load('carro/car.mtl', function (materials) {
     materials.preload();
     console.log('Materiais carregados:', materials);
 
@@ -325,7 +325,7 @@ mtlLoader.load('car.mtl', function (materials) {
 
     // Carregar o modelo OBJ
     objLoader.load(
-        'car.obj',
+        'carro/car.obj',
         function (object) {
             vehicle = object;
             vehicle.position.set(0, 0.6, 0);
@@ -360,29 +360,47 @@ var vehicleSpeed = 0.1;
 var obstacles = [];
 var obstacleGenerating = false; // Flag para controlar se está gerando um obstáculo
 
-// Carregar texturas PNG
-var textureLoader = new THREE.TextureLoader();
-var obstacleTextures = [
-    textureLoader.load('obstacle1.png'),
-    textureLoader.load('obstacle2.png'),
-    textureLoader.load('obstacle3.png'),
-    textureLoader.load('obstacle4.png'),
-    textureLoader.load('obstacle5.png')
-];
-
 // Função para gerar um único obstáculo
 function generateObstacle() {
     if (obstacleGenerating) return; // Se já estiver gerando um obstáculo, saia
 
     obstacleGenerating = true;
 
-    var textureIndex = Math.floor(Math.random() * obstacleTextures.length); // Escolher uma textura aleatória
-    var obstacleMaterial = new THREE.SpriteMaterial({ map: obstacleTextures[textureIndex] });
-    var obstacle = new THREE.Sprite(obstacleMaterial);
+    // Cores e texturas vaporwave
+    var vaporwaveColors = [
+        0xff77a9, // rosa
+        0x66c0ff, // azul claro
+        0xff66ff, // rosa neon
+        0xffcc00, // amarelo
+        0x33ffcc, // verde azulado
+        0xcc33ff, // roxo
+        0x00ffcc  // turquesa
+    ];
+
+    var colorIndex = Math.floor(Math.random() * vaporwaveColors.length); // Escolher uma cor aleatória
+
+    // Criar material com efeito vaporwave e transparência
+    var obstacleMaterial = new THREE.MeshStandardMaterial({
+        color: vaporwaveColors[colorIndex],
+        emissive: vaporwaveColors[colorIndex], // Emissão da mesma cor para o efeito vaporwave
+        emissiveIntensity: 0.5, // Intensidade da emissão
+        roughness: 0.2, // Rugosidade ajustada para um brilho suave
+        metalness: 0, // Sem metalness
+        transparent: true, // Material transparente
+        opacity: 0.8 // Nível de opacidade (80% transparente)
+    });
+
+    // Textura para o mapa de emissão (opcional, dependendo do estilo desejado)
+    var textureLoader = new THREE.TextureLoader();
+    var emissionTexture = textureLoader.load('textures/vaporwave.png'); // Textura para o efeito de emissão
+    obstacleMaterial.emissiveMap = emissionTexture;
+
+    var obstacleGeometry = new THREE.BoxGeometry(1, 1, 1); // Tamanho do cubo
+    var obstacle = new THREE.Mesh(obstacleGeometry, obstacleMaterial);
 
     // Definir distância mínima e máxima à frente do veículo
-    var minDistance = 4; // Distância mínima à frente do veículo
-    var maxDistance = 20; // Distância máxima à frente do veículo
+    var minDistance = 30; // Distância mínima à frente do veículo
+    var maxDistance = 50; // Distância máxima à frente do veículo
     var vehicleZ = vehicle.position.z; // Posição atual do veículo na profundidade da estrada
 
     // Posicionar o obstáculo aleatoriamente na estrada com distância aleatória
@@ -395,15 +413,20 @@ function generateObstacle() {
     }
 
     obstacle.position.set(randomX, 0.5, randomZ);
-    obstacle.scale.set(1, 1, 1); // Ajustar o tamanho do sprite
 
     scene.add(obstacle);
     obstacles.push(obstacle);
 
+    // Remover o obstáculo após 60 segundos
+    setTimeout(function() {
+        scene.remove(obstacle);
+        obstacles.splice(obstacles.indexOf(obstacle), 1);
+    }, 60000); // 60 segundos
+
     // Permitir a geração do próximo obstáculo após um atraso
     setTimeout(function() {
         obstacleGenerating = false;
-    }, 2000); // Ajuste o tempo de atraso conforme necessário
+    }, 1000); // Ajuste o tempo de atraso conforme necessário
 }
 
 // Chame a função generateObstacle() repetidamente para gerar múltiplos obstáculos
@@ -481,10 +504,105 @@ function moveVehicleRight() {
     }
 }
 
+
+// Pontuação na tela
+let score = 0;
+const scoreInterval = 2000; // Intervalo de tempo em milissegundos
+let intervalId;
+let gameOver = false;
+
+// Função para atualizar a pontuação
+function updateScore() {
+    score += 1;
+}
+
+// Inicia a atualização da pontuação a cada 20 milissegundos
+intervalId = setInterval(updateScore, scoreInterval);
+
+// Crie um canvas separado para a pontuação
+const scoreCanvas = document.createElement('canvas');
+scoreCanvas.width = window.innerWidth;
+scoreCanvas.height = window.innerHeight;
+scoreCanvas.style.position = 'absolute';
+scoreCanvas.style.top = '0';
+scoreCanvas.style.left = '0';
+scoreCanvas.style.pointerEvents = 'none'; // Permite cliques através do canvas
+document.body.appendChild(scoreCanvas);
+const scoreCtx = scoreCanvas.getContext('2d');
+
+// Função para desenhar a pontuação na tela
+function drawScore() {
+    scoreCtx.clearRect(0, 0, scoreCanvas.width, scoreCanvas.height); // Limpa o canvas
+    scoreCtx.font = '30px Arial'; // Aumentei o tamanho da fonte para melhor visibilidade
+    scoreCtx.fillStyle = '#ff00ff'; // Rosa neon
+    scoreCtx.shadowColor = '#ff00ff';
+    scoreCtx.shadowBlur = 10; // Ajuste o valor para um efeito de neon mais forte
+    scoreCtx.fillText(`Score: ${score}`, window.innerWidth - 150, 50);
+}
+
+
+
+// Função para desenhar a mensagem de "Game Over"
+function drawGameOver() {
+    scoreCtx.font = '50px Arial';
+    scoreCtx.fillStyle = '#ff00ff';
+    scoreCtx.shadowColor = '#ff00ff';
+    scoreCtx.shadowBlur = 20;
+    scoreCtx.textAlign = 'center';
+    scoreCtx.fillText('Game Over', window.innerWidth / 2, window.innerHeight / 2);
+}
+
+
+
+
+
+
+// Array de músicas
+const musicPaths = [
+    'mp3/Lucide.mp3',
+	'mp3/Partly.mp3',
+    // Adicione mais caminhos de músicas conforme necessário
+];
+
+let musicPlaying = false; // Flag para controlar se a música está sendo reproduzida
+
+// Função para tocar uma música aleatoriamente
+function playRandomMusic() {
+    const randomIndex = Math.floor(Math.random() * musicPaths.length);
+    const audio = new Audio(musicPaths[randomIndex]);
+
+    audio.addEventListener('ended', function() {
+        playRandomMusic(); // Reproduzir outra música quando terminar
+    });
+
+    audio.play()
+        .then(() => {
+            console.log('Música iniciada com sucesso!');
+            musicPlaying = true; // Marcar que a música está sendo reproduzida
+        })
+        .catch(error => {
+            console.error('Erro ao iniciar música:', error);
+        });
+}
+
+// Adicionar eventos para iniciar a reprodução com qualquer clique do teclado ou mouse
+document.addEventListener('keydown', function(event) {
+    if (!musicPlaying) {
+        playRandomMusic();
+    }
+}, { once: true });
+
+document.addEventListener('click', function(event) {
+    if (!musicPlaying) {
+        playRandomMusic();
+    }
+}, { once: true });
+
+
+
 // Função de renderização
 function render() {
-
-
+    
     if (resize(renderer)) {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
@@ -500,21 +618,35 @@ function render() {
         // Lógica para remover obstáculos que saíram da cena (opcional)
     });
 
-    // Verificar colisão
+    // Verificar colisão game over
     if (checkCollision()) {
         // Lógica para game over
-        return;
+        //clearInterval(intervalId); // Parar a atualização da pontuação
+        //gameOver = true; // Define a variável de estado do jogo como game over
+	
     }
 
     renderer.render(scene, camera);
+
+    // Desenhar a pontuação
+    drawScore();
+
+    // Desenhar a mensagem de game over, se necessário
+    if (gameOver) {
+        drawGameOver();
+        return; // Para de renderizar o resto do jogo
+    }
+
     requestAnimationFrame(render);
-	
+    
 }
+
+
 
 // Função para gerar obstáculos periodicamente
 setInterval(function() {
     generateObstacle();
-}, 2000); // A cada 2 segundos (ajuste conforme necessário)
+}, 1000); // A cada 1 segundos (ajuste conforme necessário)
 
 // Função de redimensionamento
 function resize(renderer) {
@@ -529,3 +661,5 @@ function resize(renderer) {
 }
 
 render(); // Iniciar a renderização
+
+

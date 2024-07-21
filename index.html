@@ -38,24 +38,16 @@
 </head>
 <body>
     <div id="circle">Info</div>
-    <audio id="audio" hidden>
-        <source src="1.mp3" type="audio/mpeg">
-        Seu navegador não suporta a tag de áudio.
-    </audio>
 
-    <script>
-        document.body.addEventListener('click', function() {
-            document.getElementById('audio').play();
-        }, { once: true }); // Garantir que a música seja tocada apenas uma vez
-    </script>
+
+  
 	
-	
-    <script src="https://unpkg.com/three@0.115.0/build/three.min.js"></script>
-    <script src="https://unpkg.com/three@0.115.0/examples/js/utils/BufferGeometryUtils.js"></script>
-    <script src="https://unpkg.com/three@0.115.0/examples/js/controls/OrbitControls.js"></script>
-	<script src="https://unpkg.com/three@0.115.0/examples/js/loaders/OBJLoader.js"></script>
-    <script src="https://unpkg.com/three@0.115.0/examples/js/loaders/MTLLoader.js"></script>
-    <script src="https://unpkg.com/three@0.115.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="js/three.min.js"></script>
+    <script src="js/BufferGeometryUtils.js"></script>
+    <script src="js/OrbitControls.js"></script>
+	<script src="js/OBJLoader.js"></script>
+    <script src="js/MTLLoader.js"></script>
+    <script src="js/GLTFLoader.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
