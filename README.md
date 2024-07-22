@@ -1,6 +1,6 @@
 # Run to Sun
 
-![Carro ao Sol](imag/car.png)
+![Carro ao Sol](img/car.png)
 
 Este é um jogo de teste onde um carro percorre um ambiente inspirado no estilo retrowave, utilizando técnicas de jogos antigos como Outrun. A estrada se movimenta dinamicamente enquanto os demais elementos permanecem estáticos, criando uma atmosfera nostálgica.
 
